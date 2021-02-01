@@ -15,7 +15,7 @@ int main()
 	system::error_code connect_error; // 에러 클래스
 	ip::tcp::socket socket(io_service); // 클라이언트의 소켓(정보)
 	socket.connect(endpoint, connect_error); // connect : endpoint 서버에 접속 시작(connect_error의 값을 조사하여 실패 여부 파악)
-
+		
 	if (connect_error) // 에러 처리
 	{
 		cout << "연결 실패 error No: " << connect_error.value() << ", Message : " << connect_error.message() << endl;
@@ -28,23 +28,24 @@ int main()
 
 	for (int i = 0; i < 7; ++i)
 	{
-		//데이터 발신
+		// 데이터 발신 write_some
 		char szMessage[128] = { 0, };
 		sprintf_s(szMessage, 128 - 1, "%d - Send Message", i); // szMessage에 "i - Send Message" 값을 대입
 		int nMsgLen = strnlen_s(szMessage, 128 - 1); // 길이도 계산
 
 		system::error_code ignored_error;
+		
 		socket.write_some(buffer(szMessage, nMsgLen), ignored_error); // szMessage 값을 nMsgLen 길이 만큼 데이터 전송
 		
 		cout << "서버에 보낸 메시지 : " << szMessage << endl;
 
-		// 데이터 수신
+		// 데이터 수신 read_some
 		std::array<char, 128> buf;
-		buf.assign(0);
+		buf.assign(0); // 버퍼 초기화
 		system::error_code error;
 		size_t len = socket.read_some(buffer(buf), error); // buf에 서버에서 보낸 데이터를 읽음(len은 읽은 데이터 길이)
 
-		if (error)
+		if (error) // 에러 처리
 		{
 			if (error == error::eof)
 			{
@@ -60,8 +61,15 @@ int main()
 		cout << "서버로부터 받은 메시지 : " << &buf[0] << endl; // 서버로부터 수신한 메시지 출력
 	}
 
+	system::error_code error;
 	if (socket.is_open()) // for 문(전송작업)이 끝났을 경우
 	{
-		socket.close(); // 소켓 닫기
+		socket.close(error); // 접속 종료
+		if (error)
+		{
+			cout << "close error occurred" << endl;
+		}
+		else
+			cout << "연결 종료" << endl;
 	}
 }
