@@ -39,6 +39,7 @@ int main()
 		
 		cout << "서버에 보낸 메시지 : " << szMessage << endl;
 
+		
 		// 데이터 수신 read_some
 		std::array<char, 128> buf;
 		buf.assign(0); // 버퍼 초기화
@@ -59,6 +60,7 @@ int main()
 		}
 
 		cout << "서버로부터 받은 메시지 : " << &buf[0] << endl; // 서버로부터 수신한 메시지 출력
+		Sleep(1000);
 	}
 
 	system::error_code error;
